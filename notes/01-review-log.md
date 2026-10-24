@@ -89,3 +89,17 @@ L6. `V4Utils.onERC721Received` executes against received token then returns it t
   `TickMath.min/maxUsableTick` (AutoRangeLib got this fix in V4LE-74). For a position whose width
   pushes `baseTick + spacing + width` past maxUsableTick, the re-entry mint fails, the position is
   disabled and the redeemed tokens are sent to the owner. No loss of funds -> Low/Info.
+- Vault liquidation re-check (L3): `_sendPositionValue` caps the liquidator at
+  `received * liquidationValue / max(base, receivedValue)` -> can never exceed liquidationValue
+  worth; rounding is floor. L3 closed as dead end.
+- Hook AutoLeverage (permissionless trigger): bad fills bounded only by oracle window =
+  AUDIT-ACCEPTED-HOOK-SWAP-NO-SLIPPAGE-FLOOR; postcondition `improvesTowardTarget` enforced. No lead.
+- Added poc/LocalVaultScaffold.t.sol (fork-free; PASSES against f6d0fb4) as the base for vault PoCs.
+
+## Next session
+1. Link GitHub, create remote, push this repo.
+2. Remaining unread: shared/math/LiquidityCalculator.sol, shared/swap/Swapper.sol,
+   automators/AutoLend.sol, AutoLeverage.sol, AutoRange.sol, AuctionArbExecutor.sol,
+   hook/RevertHookMigrationActions.sol, vault/liquidation/FlashloanLiquidator.sol.
+3. Prioritise permissionless entry points (swap-triggered hook actions, autoCollect, liquidation,
+   lease/auction controllers) — trusted-operator paths are out of scope.
