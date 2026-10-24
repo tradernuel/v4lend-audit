@@ -79,3 +79,13 @@ L6. `V4Utils.onERC721Received` executes against received token then returns it t
   pacing and buyout/evict paths all look consistent; V4LE-22/36/105 fixes present. No lead.
 - D4. AutoCollect: config keyed by tokenId survives an NFT transfer (new owner inherits old
   maxRewardX64), but only trusted operators can execute -> trusted-role, out of scope.
+- D5. Oracle fee obligation (`HookFeeController.quoteProtocolFees`) mirrors the hook's
+  `_accrueProtocolFee` exactly (same active/elapsed clamp, pending added). No valuation gap.
+- D6. Vault `transform`: any NFT received mid-transform replaces the loan token, but only code the
+  loan owner / approved operator controls runs inside a transform -> self-harm only.
+
+### Low-severity notes (not rewardable in this contest, kept for completeness)
+- N1. `AutoLendLib.planOneSidedReentry` does not clamp the re-entry range to
+  `TickMath.min/maxUsableTick` (AutoRangeLib got this fix in V4LE-74). For a position whose width
+  pushes `baseTick + spacing + width` past maxUsableTick, the re-entry mint fails, the position is
+  disabled and the redeemed tokens are sent to the owner. No loss of funds -> Low/Info.
