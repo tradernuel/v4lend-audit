@@ -61,3 +61,21 @@ L6. `V4Utils.onERC721Received` executes against received token then returns it t
 
 ## Known-accepted (do not submit) — see 00-context.md
 ```
+
+## Session 2 (2026-10-24)
+- Build finished (src + tests compile; `forge build` OK with Foundry 1.5.1 / solc 0.8.30).
+- **Fork tests impossible here**: the egress proxy refuses ethereum-rpc.publicnode.com, so all
+  PoCs must use the fork-free harness `test/vault/support/V4VaultLocalBase.sol` (real
+  PoolManager/PositionManager via BaseTest, mock oracle). Sanity run: V4VaultLiquidationMath passes.
+- Read: automators/Automator.sol, AutoCollect.sol; hook/HookLeaseController.sol (full);
+  hook/RevertHookAutoLendActions.sol (full).
+
+### Dead ends this session
+- D1. Hook liquidity callbacks key state by `params.salt` (=tokenId). Spoofing a victim tokenId via a
+  custom router is blocked: `_checkLiquiditySender` requires sender == PositionManager.
+- D2. `lastCollect` is never initialised explicitly, so the first collect would be protocol-fee free —
+  but `_afterAddLiquidity` always runs `takeProtocolFees`, which stamps `lastCollect` at mint. No gap.
+- D3. HookLeaseController: rent accrual, paidThrough invariance, min-rent settlement, pending-bucket
+  pacing and buyout/evict paths all look consistent; V4LE-22/36/105 fixes present. No lead.
+- D4. AutoCollect: config keyed by tokenId survives an NFT transfer (new owner inherits old
+  maxRewardX64), but only trusted operators can execute -> trusted-role, out of scope.
